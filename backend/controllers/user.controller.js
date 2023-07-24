@@ -53,6 +53,61 @@ exports.register = async(req,res)=>{
     }
 }
 
+exports.login = async(req,res)=>{
+    try {
+
+        const {email, password} = req.body;
+
+        if(!email || !password) {
+            return res.status(400).json({
+                message: "password and email required",
+                success: false
+            })
+        }
+
+        const user = await  User.findOne({email});
+
+        if(!user){
+            return res.status(400).json({
+                message: "User does not exist",
+                success: false
+            })
+        }
+
+        const isMatch = await user.matchPassword(password);
+
+        if(!isMatch){
+            return res.status(400).json({
+                message: "Incorrect password",
+                success: false
+            })
+        }
+
+        const token = await user.generateToken();
+
+        const options = {
+            expiresIn: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+            httpOnly: true
+        };
+
+        res.status(200)
+        .cookie("token", token, options)
+        .json({
+            message: "Login successful",
+            user,
+            success: true,
+        })
+
+
+        
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false
+        })
+    }
+}
+
 exports.profile = async(req,res)=>{
     try {
 
