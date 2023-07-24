@@ -15,6 +15,10 @@ const taskSchema = mongoose.Schema({
         type: String,
         enum: ['pending', 'progress', 'done']
     },
+    created_by_user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     assigned_user:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

@@ -110,10 +110,31 @@ exports.login = async(req,res)=>{
 
 exports.profile = async(req,res)=>{
     try {
+        const user = await User.findById(req.user._id).populate({
+            path: 'tasks',
+            populate: { path: 'assigned_user' },
+          });
+        res.status(200).json({
+            success: true,
+            user
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            error:error
+        })
+    }
+}
+
+exports.allUsers = async(req,res)=>{
+    try {
+
+        const users = await User.find({});
 
         res.status(200).json({
             success: true,
-            message: "Test Profile"
+            users
         })
         
     } catch (error) {
