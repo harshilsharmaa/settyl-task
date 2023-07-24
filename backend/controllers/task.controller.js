@@ -1,5 +1,5 @@
 const Task = require('../models/Task.js');
-const User = require('../models/User.js')
+const User = require('../models/User.js');
 
 exports.createTask = async (req, res) => {
     try {
@@ -69,6 +69,13 @@ exports.updateTask = async (req, res) => {
             });
         }
 
+        if(task.created_by_user.toString()!==req.user._id.toString()){
+            return res.status(404).json({
+                success: false,
+                error: "Not authorize to this action",
+            });
+        }
+
         if (title) task.title = title;
         if (description) task.description = description;
         if (due_date) task.due_date = new Date(due_date);
@@ -104,7 +111,7 @@ exports.deleteTask = async (req, res) => {
     try {
         const taskId = req.params.taskId;
 
-        const task = await Task.findByIdAndDelete(taskId);
+        const task = await Task.findOneAndDelete({ _id: taskId, created_by_user: req.user._id });
         if (!task) {
             return res.status(404).json({
                 success: false,
@@ -125,6 +132,7 @@ exports.deleteTask = async (req, res) => {
             task,
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({
             success: false,
             error,
