@@ -111,7 +111,7 @@ exports.deleteTask = async (req, res) => {
     try {
         const taskId = req.params.taskId;
 
-        const task = await Task.findOneAndDelete({ _id: taskId, created_by_user: req.user._id });
+        const task = await Task.findOneAndDelete({ _id: taskId});
         if (!task) {
             return res.status(404).json({
                 success: false,
@@ -139,3 +139,58 @@ exports.deleteTask = async (req, res) => {
         });
     }
 };
+
+exports.allTasks = async(req, res)=>{
+    try {
+        const user = await User.findById(req.user._id).populate({
+            path: 'tasks',
+            populate: { path: 'assigned_user' },
+          });
+        res.status(200).json({
+            success: true,
+            tasks: user.tasks
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error
+        })
+    }
+}
+
+exports.updateTaskStatus = async(req, res)=>{
+    try {
+        const taskId = req.params.taskId;
+        const {status} = req.body;
+
+        const task = await Task.findById(taskId);
+        if(!task){
+            return res.status(404).json({
+                success: false,
+                error: "Task not found"
+            })
+        }
+
+        if(task.assigned_user.toString()!==req.user._id.toString()){
+            return res.status(404).json({
+                success: false,
+                error: "Not authorize to this action",
+            });
+        }
+
+        task.status = status;
+        await task.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Task status updated successfully",
+            task
+        })
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error
+        })
+    }
+}

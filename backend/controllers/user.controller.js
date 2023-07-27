@@ -8,7 +8,7 @@ exports.register = async(req,res)=>{
 
         if(!name ||  !email || !password) {
             return res.status(400).json({
-                message: "name, password and email required",
+                error: "name, password and email required",
                 success: false
             })
         }
@@ -17,7 +17,7 @@ exports.register = async(req,res)=>{
 
         if(user){
             return res.status(400).json({
-                message: "User already exists",
+                error: "User already exists",
                 success: false
             })
         }
@@ -47,7 +47,7 @@ exports.register = async(req,res)=>{
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            message: error,
+            error: error,
             success: false
         })
     }
@@ -60,7 +60,7 @@ exports.login = async(req,res)=>{
 
         if(!email || !password) {
             return res.status(400).json({
-                message: "password and email required",
+                error: "password and email required",
                 success: false
             })
         }
@@ -69,7 +69,7 @@ exports.login = async(req,res)=>{
 
         if(!user){
             return res.status(400).json({
-                message: "User does not exist",
+                error: "User does not exist",
                 success: false
             })
         }
@@ -78,7 +78,7 @@ exports.login = async(req,res)=>{
 
         if(!isMatch){
             return res.status(400).json({
-                message: "Incorrect password",
+                error: "Incorrect password",
                 success: false
             })
         }
@@ -102,7 +102,7 @@ exports.login = async(req,res)=>{
         
     } catch (error) {
         res.status(500).json({
-            message: error.message,
+            error: error.message,
             success: false
         })
     }
@@ -141,6 +141,22 @@ exports.allUsers = async(req,res)=>{
         res.status(500).json({
             success:false,
             message: "Internal Server Error"
+        })
+    }
+}
+
+exports.logout = async(req,res)=>{
+    try {
+        
+        res.status(200).cookie("token", null, {expires:new Date(Date.now()), httpOnly:true}).json({
+            message: "Logout successful",
+            success: true
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false
         })
     }
 }

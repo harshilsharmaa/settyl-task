@@ -1,30 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createTask } from '../slices/taskSlice';
+import { updateTask } from '../slices/taskSlice';
 
-const CreateTaskModal = ({setshowCreateTaskModal }) => {
+const UpdateTaskModal = ({task, isOpen, setshowUpdateTaskModal }) => {
 
   const {users} = useSelector((store)=>store.user.allUsers);
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [assignedTo, setAssignedTo] = useState('');
+  const {taskUpdateInfo, loading} = useSelector((store)=>store.tasks);
+
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const [dueDate, setDueDate] = useState(task.due_date);
+  const [assignedTo, setAssignedTo] = useState(task.assigned_user._id);
 
   const dispatch = useDispatch();
 
-  const handleCreateTask = () => {
+  const handleUpdateTask = () => {
+
     const due_date = dueDate;
     const assigned_user_id = assignedTo;
-    dispatch(createTask({title, description, due_date, assigned_user_id}))
-    setshowCreateTaskModal(false);
+    const data = {title, description, due_date, assigned_user_id}
+    dispatch(updateTask({data, taskId: task._id}))
   };
+
+  if(loading){
+    return <h1>Loading...</h1>
+  }
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center `}>
       <div className="absolute inset-0 bg-black opacity-30"></div>
       <div className="w-6/12 bg-white p-4 rounded-lg shadow-lg z-10">
-        <h2 className="text-xl font-semibold mb-4">Create Task</h2>
+        <h2 className="text-xl font-semibold mb-4">Update Task</h2>
         <div className="mb-4">
           <label className="block font-semibold mb-1">Title</label>
           <input
@@ -73,11 +80,11 @@ const CreateTaskModal = ({setshowCreateTaskModal }) => {
         <div className="flex justify-end">
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-md mr-2"
-            onClick={handleCreateTask}
+            onClick={handleUpdateTask}
           >
-            Create
+            Update
           </button>
-          <button onClick={()=>setshowCreateTaskModal(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md" >
+          <button onClick={()=>setshowUpdateTaskModal(false)} className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md" >
             Cancel
           </button>
         </div>
@@ -86,4 +93,4 @@ const CreateTaskModal = ({setshowCreateTaskModal }) => {
   );
 };
 
-export default CreateTaskModal;
+export default UpdateTaskModal;

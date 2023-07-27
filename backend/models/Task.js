@@ -13,7 +13,8 @@ const taskSchema = mongoose.Schema({
     },
     status:{
         type: String,
-        enum: ['pending', 'progress', 'done']
+        enum: ['pending', 'progress', 'done'],
+        default: 'pending'
     },
     created_by_user: {
         type: mongoose.Schema.Types.ObjectId,
